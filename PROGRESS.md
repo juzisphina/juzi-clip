@@ -12,3 +12,6 @@ Keep skot-chen/clip-saver untouched — changes here do not go back there.
 
 ## Release
 Push a new `v*` tag. Push as juzisphina: `GH_TOKEN=$(gh auth token --user juzisphina)`; commit author `juzisphina <358831323+juzisphina@users.noreply.github.com>`.
+
+## Released
+- v1.0.1 (2026-11-26): first public release. v1.0.0 build failed (smoke test still looked for "ClipSaver"; Mac job never got a runner and was cancelled after 15 min) - fixed and re-tagged.
