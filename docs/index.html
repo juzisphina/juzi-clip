@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-lang="hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>橘子存片 JuziClip — 貼個連結，把 X 和 Threads 的影片存下來</title>
+<meta name="description" content="橘子存片：貼上 X 或 Threads 貼文連結，列出所有影片，分清本篇、引用貼文和廣告卡片，一鍵存成 mp4。Mac / Windows。">
+<link rel="icon" href="assets/icon.png">
+<style>
+  :root {
+    --ink: #4a3428;
+    --paper: #fff8f1;
+    --card: #ffffff;
+    --blue: #f07a2e;
+    --blue-soft: #ffe7d4;
+    --orange-soft: #e3f2fd;
+    --violet-soft: #efe7ff;
+    --line: #f3dfcc;
+    --muted: #8f7462;
+    --code-bg: #fdeee1;
+    --pre-bg: #4a3428;
+    --pre-ink: #fff3e6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #fbeee3;
+      --paper: #1d1612;
+      --card: #2a201a;
+      --blue: #ff9a52;
+      --blue-soft: #4a2a17;
+      --orange-soft: #17324a;
+      --violet-soft: #2f2446;
+      --line: #3d2e25;
+      --muted: #c4a894;
+      --code-bg: #352820;
+      --pre-bg: #120d0a;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.8;
+  }
+  a { color: var(--blue); }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 20px; }
+
+  /* hero */
+  .hero { text-align: center; padding: 64px 20px 28px; }
+  .hero .icon { width: 112px; height: 112px; filter: drop-shadow(0 10px 24px rgba(240,122,46,.28)); }
+  .hero h1 .en-name { font-size: 1.1rem; color: var(--muted); font-weight: 600; }
+  .hero h1 .flower { font-size: 1.3rem; }
+  body { background-image: radial-gradient(circle at 15% 0%, #ffe3c8 0, transparent 38%), radial-gradient(circle at 90% 8%, #ffd9e4 0, transparent 30%); background-repeat: no-repeat; }
+  @media (prefers-color-scheme: dark) { body { background-image: none; } }
+  .btn { background: linear-gradient(135deg, #ffb36b, var(--blue)) !important; }
+  .btn.ghost { background: transparent !important; }
+  .hero h1 { font-size: 2.2rem; letter-spacing: .01em; margin: 14px 0 6px; }
+  .hero .tag { font-size: 1.15rem; }
+  .hero .sub { color: var(--muted); margin-top: 4px; }
+  .badges { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+  .badges img { height: 20px; }
+  .dl { margin-top: 26px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--blue); color: #fff; text-decoration: none;
+    padding: 12px 30px; border-radius: 999px; font-size: 1rem; font-weight: 600;
+    box-shadow: 0 6px 18px rgba(240,122,46,.28);
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn.ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); box-shadow: none; font-weight: 500; }
+  .btn.ghost:hover { border-color: var(--ink); }
+  .btn svg { width: 18px; height: 18px; }
+  .note { margin-top: 12px; font-size: .85rem; color: var(--muted); }
+
+  /* screenshots */
+  .shots { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; padding: 36px 0 8px; }
+  .shot { text-align: center; }
+  .shot .frame {
+    border-radius: 14px; overflow: hidden; background: var(--card);
+    border: 1px solid var(--line); box-shadow: 0 16px 40px rgba(23,32,46,.12);
+  }
+  .shot .bar { display: flex; gap: 6px; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+  .shot .bar i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); display: block; }
+  .shot img { display: block; width: 100%; height: auto; }
+  .shot .zoom { display: block; width: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; position: relative; }
+  .shot .zoom::after {
+    content: "点击放大"; position: absolute; right: 10px; bottom: 10px;
+    background: rgba(23,32,46,.72); color: #fff; font-size: .78rem; padding: 2px 10px; border-radius: 99px;
+    opacity: 0; transition: opacity .2s;
+  }
+  .shot .zoom:hover::after, .shot .zoom:focus-visible::after { opacity: 1; }
+  .shot .zoom:focus-visible { outline: 3px solid var(--blue); outline-offset: -3px; }
+  .shot .frame { transition: transform .2s, box-shadow .2s; }
+  .shot .frame:hover { transform: translateY(-3px); box-shadow: 0 22px 48px rgba(23,32,46,.18); }
+
+  /* lightbox */
+  .lightbox {
+    border: 0; padding: 0; background: transparent; max-width: none; max-height: none;
+    width: 100vw; height: 100vh; margin: 0;
+  }
+  .lightbox::backdrop { background: rgba(8,12,20,.86); }
+  .lightbox[open] { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+  .lightbox img {
+    max-width: min(1100px, calc(100vw - 32px)); max-height: calc(100vh - 120px);
+    width: auto; height: auto; border-radius: 12px; box-shadow: 0 24px 60px rgba(0,0,0,.5); background: #fff;
+    cursor: zoom-out;
+  }
+  .lightbox p { color: #e8ecf3; font-size: .95rem; text-align: center; padding: 0 16px; }
+  .lb-btn {
+    position: fixed; width: 44px; height: 44px; border-radius: 50%; border: 0; cursor: pointer;
+    background: rgba(255,255,255,.14); color: #fff; font-size: 22px; line-height: 44px; text-align: center;
+  }
+  .lb-btn:hover { background: rgba(255,255,255,.26); }
+  .lb-close { top: 16px; right: 16px; }
+  .lb-prev { left: 16px; top: 50%; transform: translateY(-50%); }
+  .lb-next { right: 16px; top: 50%; transform: translateY(-50%); }
+  @media (max-width: 680px) {
+    .lb-prev, .lb-next { top: auto; bottom: 20px; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .shot .frame { transition: none; }
+  }
+  .shot figcaption { margin-top: 12px; color: var(--muted); font-size: .9rem; }
+  .shot figcaption b { display: block; color: var(--ink); font-size: 1rem; }
+
+  /* sections */
+  section.block { padding: 44px 0 6px; }
+  section.block h2 { font-size: 1.3rem; margin-bottom: 16px; padding-left: 12px; border-left: 4px solid var(--blue); }
+  section.block > p { color: var(--muted); margin-bottom: 14px; }
+  code { background: var(--code-bg); padding: 1px 7px; border-radius: 6px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9em; }
+  pre { background: var(--pre-bg); color: var(--pre-ink); border-radius: 12px; padding: 14px 18px; overflow-x: auto; font-size: .88rem; margin-top: 10px; }
+
+  .features { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .features div, .labels div, .faq div { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .features b { display: block; margin-bottom: 4px; }
+  .features p, .labels p, .faq p { color: var(--muted); font-size: .93rem; line-height: 1.7; }
+
+  /* how it tells videos apart */
+  .labels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .chip { display: inline-block; font-size: .85rem; padding: 1px 10px; border-radius: 99px; margin-bottom: 6px; font-weight: 600; }
+  .chip.main { background: var(--blue-soft); }
+  .chip.quote { background: var(--orange-soft); }
+  .chip.card { background: var(--violet-soft); }
+
+  /* steps */
+  .steps { list-style: none; counter-reset: step; }
+  .steps > li { counter-increment: step; display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px dashed var(--line); }
+  .steps > li:last-child { border-bottom: none; }
+  .steps > li::before {
+    content: counter(step); flex: none; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--blue); color: #fff; font-size: .9rem; font-weight: 700; text-align: center; line-height: 28px; margin-top: 2px;
+  }
+  .steps > li > div { min-width: 0; }
+  .steps h3 { font-size: 1rem; margin-bottom: 2px; }
+  .steps p { color: var(--muted); font-size: .93rem; }
+
+  .os-tabs { display: inline-flex; gap: 4px; padding: 4px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; margin-bottom: 6px; }
+  .os-tabs button { font: inherit; font-size: .93rem; border: 0; background: none; color: var(--muted); padding: 4px 18px; border-radius: 999px; cursor: pointer; }
+  .os-tabs button[aria-selected="true"] { background: var(--blue); color: #fff; }
+  .os-tabs button:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+  .note a { color: var(--muted); }
+
+  .faq { display: grid; gap: 10px; }
+  .faq b { display: block; }
+
+  footer { margin-top: 60px; border-top: 1px solid var(--line); padding: 24px 20px; text-align: center; color: var(--muted); font-size: .9rem; }
+  footer a { color: var(--ink); }
+
+  @media (max-width: 680px) {
+    .shots, .features, .labels { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 1.7rem; }
+    .hero { padding-top: 44px; }
+  }
+  /* language: both texts are in the page, one is hidden */
+  html[data-lang="hant"] .hans, html[data-lang="hans"] .hant { display: none !important; }
+  .lang-toggle { position: fixed; top: 14px; right: 14px; z-index: 5; display: inline-flex; padding: 3px; border-radius: 999px;
+    background: var(--card); border: 1px solid var(--line); box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+  .lang-toggle button { font: inherit; font-size: .85rem; font-weight: 600; border: 0; background: none; color: var(--muted); padding: 4px 14px; border-radius: 999px; cursor: pointer; }
+  .lang-toggle button[aria-pressed="true"] { background: var(--blue); color: #fff; }
+  .lang-toggle button:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<div class="lang-toggle" role="group" aria-label="Language 语言">
+  <button type="button" data-setlang="hant">繁體</button>
+  <button type="button" data-setlang="hans">简体</button>
+</div>
+
+<header class="hero">
+  <img class="icon" src="assets/icon.png" alt="橘子存片">
+  <h1>橘子存片 <small class="en-name">JuziClip</small> <span class="flower">🌼</span></h1>
+  <p class="tag"><span class="hant">貼個連結，把 X 和 Threads 的影片存下來。</span><span class="hans">贴个链接，把 X 和 Threads 的视频存下来。</span></p>
+  <p class="sub"><span class="hant">一條貼文裡有好幾個影片、影片其實在被引用的貼文裡，它都能分清楚。</span><span class="hans">一条帖子里有好几个视频、视频其实在被引用的帖子里，它都能分清楚。</span></p>
+  <div class="badges">
+    <img src="https://img.shields.io/badge/macOS-Apple_Silicon-black?logo=apple" alt="macOS Apple Silicon">
+    <img src="https://img.shields.io/badge/Windows-10%20%2F%2011-0078d4" alt="Windows 10 / 11">
+    <img src="https://img.shields.io/github/v/release/juzisphina/juzi-clip?label=version&color=ffb074" alt="version">
+    <img src="https://img.shields.io/badge/%E7%B9%81%E9%AB%94%20%2F%20%E7%AE%80%E4%BD%93-ff8a3d" alt="繁體 / 简体">
+  </div>
+  <div class="dl">
+    <a class="btn" id="dl-mac" href="https://github.com/juzisphina/juzi-clip/releases/latest/download/JuziClip-macOS-arm64.dmg">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>
+      <span class="hant">Mac 版 dmg</span><span class="hans">Mac 版 dmg</span>
+    </a>
+    <a class="btn" id="dl-win" href="https://github.com/juzisphina/juzi-clip/releases/latest/download/JuziClip-Windows.exe">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>
+      <span class="hant">Windows 版 exe</span><span class="hans">Windows 版 exe</span>
+    </a>
+  </div>
+  <p class="note"><span class="hant">Mac：Apple 芯片（M1–M4）· 約 12 MB　|　Windows：10 / 11，64 位 · 約 12 MB<br>都不用安裝別的東西 · </span><span class="hans">Mac：Apple 芯片（M1–M4）· 约 12 MB　|　Windows：10 / 11，64 位 · 约 12 MB<br>都不用安装别的东西 · </span><a href="https://github.com/juzisphina/juzi-clip"><span class="hant">GitHub 倉庫</span><span class="hans">GitHub 仓库</span></a></p>
+</header>
+
+<div class="wrap">
+
+  <div class="shots">
+    <figure class="shot">
+      <div class="frame"><div class="bar"><i></i><i></i><i></i></div>
+        <button class="zoom" type="button" aria-label="Zoom 放大">
+          <img class="hant" src="assets/shot-mixed.jpg" alt="一條 X 貼文：本篇影片預設選取，引用貼文裡的影片單獨標出" width="786" height="514">
+          <img class="hans" src="assets/shot-mixed-hans.jpg" alt="" width="786" height="514">
+        </button></div>
+      <figcaption><span class="hant"><b>分清影片從哪來</b>本篇自己的影片預設選取，引用貼文裡的單獨標出來</span><span class="hans"><b>分清视频从哪来</b>本帖自己的视频默认选中，引用帖里的单独标出来</span></figcaption>
+    </figure>
+    <figure class="shot">
+      <div class="frame"><div class="bar"><i></i><i></i><i></i></div>
+        <button class="zoom" type="button" aria-label="Zoom 放大">
+          <img class="hant" src="assets/shot-carousel.jpg" alt="一條 Threads 輪播帖：4 個影片全部下載完成" width="786" height="514">
+          <img class="hans" src="assets/shot-carousel-hans.jpg" alt="" width="786" height="514">
+        </button></div>
+      <figcaption><span class="hant"><b>多個影片一次存</b>Threads 輪播裡的 4 段影片，選取後同時下載</span><span class="hans"><b>多个视频一次存</b>Threads 轮播里的 4 段视频，选中后同时下载</span></figcaption>
+    </figure>
+  </div>
+
+  <section class="block">
+    <h2><span class="hant">它能做什麼</span><span class="hans">它能做什么</span></h2>
+    <div class="features">
+      <div><b><span class="hant">X 和 Threads 都能用</span><span class="hans">X 和 Threads 都能用</span></b><p><span class="hant">x.com、twitter.com、threads.com、threads.net 的貼文連結，分享連結也行。</span><span class="hans">x.com、twitter.com、threads.com、threads.net 的帖子链接，分享链接也行。</span></p></div>
+      <div><b><span class="hant">多個影片，自己挑</span><span class="hans">多个视频，自己挑</span></b><p><span class="hant">每個影片都有預覽、時長和尺寸，想要哪幾個就選哪幾個。</span><span class="hans">每个视频都有预览、时长和尺寸，想要哪几个就选哪几个。</span></p></div>
+      <div><b><span class="hant">預設最高畫質</span><span class="hans">默认最高画质</span></b><p><span class="hant">自動選最清楚的版本，也可以換小一點的。存下來是普通 mp4，有畫面也有聲音。</span><span class="hans">自动选最清楚的版本，也可以换小一点的。存下来是普通 mp4，有画面也有声音。</span></p></div>
+      <div><b><span class="hant">代理自己加，連不上自動換</span><span class="hans">代理自己加，连不上自动换</span></b><p><span class="hant">把 Clash、V2Ray、Shadowsocks 的連接埠加進來（HTTP 和 SOCKS5 都行），每條都能測試能不能用。一條連不上會自動換下一條。</span><span class="hans">把 Clash、V2Ray、Shadowsocks 的端口加进来（HTTP 和 SOCKS5 都行），每条都能测试能不能用。一条连不上会自动换下一条。</span></p></div>
+      <div><b><span class="hant">繁體 / 简體</span><span class="hans">繁體 / 简体</span></b><p><span class="hant">預設繁體中文，軟體左下角一鍵切換简體，錯誤提示也會跟著換。</span><span class="hans">预设繁体中文，软件左下角一键切换简体，错误提示也会跟着换。</span></p></div>
+      <div><b><span class="hant">不留記錄</span><span class="hans">不留记录</span></b><p><span class="hant">沒有帳號、沒有歷史記錄，不上傳任何東西。電腦上只多出你下載的影片。</span><span class="hans">没有账号、没有历史记录，不上传任何东西。电脑上只多出你下载的视频。</span></p></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2><span class="hant">為什麼不會下錯影片</span><span class="hans">为什么不会下错视频</span></h2>
+    <p><span class="hant">很多下載工具只抓頁面上的第一個影片，結果下到回覆、推薦，或者別人的影片。橘子存片 只讀這則貼文本身的資料，每個影片都標出來源：</span><span class="hans">很多下载工具只抓页面上的第一个视频，结果下到回复、推荐，或者别人的视频。橘子存片 只读这条帖子本身的数据，每个视频都标出来源：</span></p>
+    <div class="labels">
+      <div><span class="chip main"><span class="hant">本篇</span><span class="hans">本帖</span></span><p><span class="hant">貼文自己發的影片。預設選取。</span><span class="hans">帖子自己发的视频。默认选中。</span></p></div>
+      <div><span class="chip quote"><span class="hant">引用貼文 @某某</span><span class="hans">引用帖 @某某</span></span><p><span class="hant">貼文引用了別人的貼文，影片在那則裡面。貼文本身沒有影片時會自動選取。</span><span class="hans">帖子引用了别人的帖子，视频在那条里面。帖子本身没有视频时会自动选中。</span></p></div>
+      <div><span class="chip card"><span class="hant">卡片 / 廣告</span><span class="hans">卡片 / 广告</span></span><p><span class="hant">藏在連結卡片裡的影片，常見於廣告。普通下載工具經常找不到。</span><span class="hans">藏在链接卡片里的视频，常见于广告。普通下载工具经常找不到。</span></p></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2><span class="hant">安裝</span><span class="hans">安装</span></h2>
+    <div class="os-tabs" role="tablist">
+      <button type="button" role="tab" id="tab-mac" aria-selected="true" aria-controls="panel-mac">Mac</button>
+      <button type="button" role="tab" id="tab-win" aria-selected="false" aria-controls="panel-win">Windows</button>
+    </div>
+    <ol class="steps" id="panel-mac" role="tabpanel" aria-labelledby="tab-mac">
+      <li><div>
+        <h3><span class="hant">下載</span><span class="hans">下载</span></h3>
+        <p><span class="hant">點上面的「Mac 版 dmg」，下載 </span><span class="hans">点上面的「Mac 版 dmg」，下载 </span><code>JuziClip-macOS-arm64.dmg</code></p>
+      </div></li>
+      <li><div>
+        <h3><span class="hant">拖進「應用程式」</span><span class="hans">拖进「应用程序」</span></h3>
+        <p><span class="hant">雙擊 dmg，把 橘子存片 拖到旁邊的 Applications 資料夾裡。</span><span class="hans">双击 dmg，把 橘子存片 拖到旁边的 Applications 文件夹里。</span></p>
+      </div></li>
+      <li><div>
+        <h3><span class="hant">第一次打開</span><span class="hans">第一次打开</span></h3>
+        <p><span class="hant">這個軟體沒有付費給 Apple 籤名，所以第一次打開時 Mac 會攔一下。點「完成」，然後打開 <b>系統設定 → 隱私權與安全性</b>，往下找到 橘子存片，點 <b>「強制打開」</b>。之後就能直接雙擊打開了。</span><span class="hans">这个软件没有付费给 Apple 签名，所以第一次打开时 Mac 会拦一下。点「完成」，然后打开 <b>系统设置 → 隐私与安全性</b>，往下找到 橘子存片，点 <b>「仍要打开」</b>。之后就能直接双击打开了。</span></p>
+        <p><span class="hant">如果提示"已損毀，無法打開"，打開「終端機」，執行下面這行再試：</span><span class="hans">如果提示"已损坏，无法打开"，打开「终端」，运行下面这行再试：</span></p>
+        <pre>xattr -cr /Applications/JuziClip.app</pre>
+      </div></li>
+    </ol>
+    <ol class="steps" id="panel-win" role="tabpanel" aria-labelledby="tab-win" hidden>
+      <li><div>
+        <h3><span class="hant">下載</span><span class="hans">下载</span></h3>
+        <p><span class="hant">點上面的「Windows 版 exe」，下載 <code>JuziClip-Windows.exe</code>。如果瀏覽器提示"不常下載"，點「…」→「保留」。</span><span class="hans">点上面的「Windows 版 exe」，下载 <code>JuziClip-Windows.exe</code>。如果浏览器提示"不常下载"，点「…」→「保留」。</span></p>
+      </div></li>
+      <li><div>
+        <h3><span class="hant">放到順手的地方</span><span class="hans">放到顺手的地方</span></h3>
+        <p><span class="hant">不用安裝，這一個檔案就是整個程式。可以放到桌面，或者任何你找得到的資料夾裡。</span><span class="hans">不用安装，这一个文件就是整个程序。可以放到桌面，或者任何你找得到的文件夹里。</span></p>
+      </div></li>
+      <li><div>
+        <h3><span class="hant">第一次打開</span><span class="hans">第一次打开</span></h3>
+        <p><span class="hant">這個軟體沒有付費購買籤名證書，所以第一次雙擊時 Windows 可能會顯示"Windows 已保護您的電腦"。點 <b>「其他資訊」</b>，再點 <b>「仍要執行」</b>，之後就能直接雙擊打開了。第一次打開要等 10 秒左右（Windows 在檢查這個新程式），以後大約 2 秒。</span><span class="hans">这个软件没有付费购买签名证书，所以第一次双击时 Windows 可能会显示"Windows 已保护你的电脑"。点 <b>「更多信息」</b>，再点 <b>「仍要运行」</b>，之后就能直接双击打开了。第一次打开要等 10 秒左右（Windows 在检查这个新程序），以后大约 2 秒。</span></p>
+      </div></li>
+    </ol>
+  </section>
+
+  <section class="block">
+    <h2><span class="hant">使用</span><span class="hans">使用</span></h2>
+    <ol class="steps">
+      <li><div><h3><span class="hant">在 X 或 Threads 裡複製貼文連結</span><span class="hans">在 X 或 Threads 里复制帖子链接</span></h3><p><span class="hant">在貼文的「分享」裡選「複製連結」。</span><span class="hans">在帖子的「分享」里选「复制链接」。</span></p></div></li>
+      <li><div><h3><span class="hant">打開 橘子存片，點「貼上連結」</span><span class="hans">打开 橘子存片，点「粘贴链接」</span></h3><p><span class="hant">會自動尋找，貼文裡所有能下載的影片都會列出來。</span><span class="hans">会自动查找，帖子里所有能下载的视频都会列出来。</span></p></div></li>
+      <li><div><h3><span class="hant">選好影片和畫質，點「下載」</span><span class="hans">选好视频和清晰度，点「下载」</span></h3><p><span class="hant">影片儲存在「下載」資料夾。點「在資料夾中顯示」可以直接找到。</span><span class="hans">视频保存在「下载」文件夹。点「在文件夹中显示」可以直接找到。</span></p></div></li>
+    </ol>
+  </section>
+
+  <section class="block">
+    <h2><span class="hant">需要代理時</span><span class="hans">需要代理时</span></h2>
+    <ol class="steps">
+      <li><div><h3><span class="hant">找到代理軟體的連接埠</span><span class="hans">找到代理软件的端口</span></h3><p><span class="hant">在 Clash、V2Ray、Shadowsocks 等軟體的設定裡能看到，常見的是 7890、7897、1080。</span><span class="hans">在 Clash、V2Ray、Shadowsocks 等软件的设置里能看到，常见的是 7890、7897、1080。</span></p></div></li>
+      <li><div><h3><span class="hant">在「設定 → 網路」裡新增代理</span><span class="hans">在「设置 → 网络」里新增代理</span></h3><p><span class="hant">填 <code>127.0.0.1:連接埠</code>，新增後會馬上測試 X 和 Threads 能不能連上。可以加好幾個，點一行把它設為優先（✓）。</span><span class="hans">填 <code>127.0.0.1:端口</code>，添加后会马上测试 X 和 Threads 能不能连上。可以加好几个，点一行把它设为优先（✓）。</span></p></div></li>
+      <li><div><h3><span class="hant">打開「代理」開關</span><span class="hans">打开「代理」开关</span></h3><p><span class="hant">之後會按順序試：優先的那個 → 其他的 → 直接連線。連不上會自動換下一個。</span><span class="hans">之后会按顺序试：优先的那个 → 其他的 → 直接连接。连不上会自动换下一个。</span></p></div></li>
+    </ol>
+  </section>
+
+  <section class="block">
+    <h2><span class="hant">下載不了？</span><span class="hans">下载不了？</span></h2>
+    <div class="faq">
+      <div><b><span class="hant">提示"連不上"</span><span class="hans">提示"连不上"</span></b><p><span class="hant">到「設定 → 網路」看你的代理測試結果是不是「✓」。都不行的話，代理軟體可能是「規則」模式，把 X / Threads 分到了直連，試試切到「全域」模式。</span><span class="hans">到「设置 → 网络」看你的代理测试结果是不是「✓」。都不行的话，代理软件可能是「规则」模式，把 X / Threads 分到了直连，试试切到「全局」模式。</span></p></div>
+      <div><b><span class="hant">尋找要多等幾秒</span><span class="hans">查找要多等几秒</span></b><p><span class="hant">有些 Threads 影片（例如從 Instagram 分享過來的）要像瀏覽器一樣打開貼文才能讀到，大約 3–5 秒，是正常的。</span><span class="hans">有些 Threads 视频（比如从 Instagram 分享过来的）要像浏览器一样打开帖子才能读到，大约 3–5 秒，是正常的。</span></p></div>
+      <div><b><span class="hant">提示"沒有能下載的影片"</span><span class="hans">提示"没有能下载的视频"</span></b><p><span class="hant">貼文裡只有圖片，或者是直播、YouTube 這類外部連結影片，這些下載不了。</span><span class="hans">帖子里只有图片，或者是直播、YouTube 这类外链视频，这些下载不了。</span></p></div>
+      <div><b><span class="hant">還是不行</span><span class="hans">还是不行</span></b><p><span class="hant">點錯誤下面的「複製錯誤訊息」，把内容發給幫你的人，裡面有具體原因。</span><span class="hans">点错误下面的「复制错误信息」，把内容发给帮你的人，里面有具体原因。</span></p></div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <span class="hant">個人做的小工具，只用來儲存你有權儲存的影片。有問題請到 </span><span class="hans">个人做的小工具，只用来保存你有权保存的视频。有问题请到 </span><a href="https://github.com/juzisphina/juzi-clip/issues"><span class="hant">GitHub 提 Issue</span><span class="hans">GitHub 提 Issue</span></a>
+</footer>
+
+<dialog class="lightbox" id="lightbox" aria-label="截图大图">
+  <img id="lb-img" alt="">
+  <p id="lb-cap"></p>
+  <button class="lb-btn lb-close" type="button" aria-label="关闭">✕</button>
+  <button class="lb-btn lb-prev" type="button" aria-label="上一张">‹</button>
+  <button class="lb-btn lb-next" type="button" aria-label="下一张">›</button>
+</dialog>
+
+<script>
+// Language: remembered choice, otherwise the visitor's browser language.
+(() => {
+  let lang = null;
+  try { lang = localStorage.getItem('lang'); } catch (e) {}
+  if (lang !== 'hant' && lang !== 'hans') lang = 'hant';   // 繁體 unless 简体 was picked
+  const titles = { hant: '橘子存片 JuziClip — 貼個連結，把 X 和 Threads 的影片存下來', hans: '橘子存片 JuziClip — 贴个链接，把 X 和 Threads 的视频存下来' };
+  function set(l) {
+    document.documentElement.dataset.lang = l;
+    document.documentElement.lang = l === 'hans' ? 'zh-Hans' : 'zh-Hant';
+    document.title = titles[l];
+    document.querySelectorAll('[data-setlang]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.setlang === l)));
+    try { localStorage.setItem('lang', l); } catch (e) {}
+  }
+  document.querySelectorAll('[data-setlang]').forEach((b) => b.addEventListener('click', () => set(b.dataset.setlang)));
+  set(lang);
+})();
+
+// Put the visitor's own system first: its download button stays filled, the other turns outlined,
+// and the install steps open on the matching tab.
+(() => {
+  const isWin = /Windows/i.test(navigator.userAgent);
+  const mine = document.getElementById(isWin ? 'dl-win' : 'dl-mac');
+  const other = document.getElementById(isWin ? 'dl-mac' : 'dl-win');
+  other.classList.add('ghost');
+  mine.parentNode.insertBefore(mine, mine.parentNode.firstChild);
+
+  const tabs = { mac: document.getElementById('tab-mac'), win: document.getElementById('tab-win') };
+  function pick(os) {
+    for (const k of Object.keys(tabs)) {
+      const on = k === os;
+      tabs[k].setAttribute('aria-selected', String(on));
+      document.getElementById('panel-' + k).hidden = !on;
+    }
+  }
+  tabs.mac.addEventListener('click', () => pick('mac'));
+  tabs.win.addEventListener('click', () => pick('win'));
+  pick(isWin ? 'win' : 'mac');
+})();
+
+(() => {
+  const box = document.getElementById('lightbox');
+  const big = document.getElementById('lb-img');
+  const cap = document.getElementById('lb-cap');
+  const shots = [...document.querySelectorAll('.shot')];
+  let index = 0;
+
+  function show(i) {
+    index = (i + shots.length) % shots.length;
+    const lang = document.documentElement.dataset.lang;
+    const img = shots[index].querySelector('img.' + lang) || shots[index].querySelector('img');
+    big.src = img.src;
+    big.alt = img.alt;
+    cap.textContent = shots[index].querySelector('figcaption').innerText.replace(/\n+/g, ' · ');
+  }
+
+  shots.forEach((shot, i) => {
+    shot.querySelector('.zoom').addEventListener('click', () => {
+      show(i);
+      box.showModal();
+    });
+  });
+
+  box.querySelector('.lb-close').addEventListener('click', () => box.close());
+  box.querySelector('.lb-prev').addEventListener('click', () => show(index - 1));
+  box.querySelector('.lb-next').addEventListener('click', () => show(index + 1));
+  big.addEventListener('click', () => box.close());
+  // click on the dark area (not on the picture or buttons) closes it
+  box.addEventListener('click', (e) => { if (e.target === box || e.target === cap) box.close(); });
+  box.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') show(index - 1);
+    if (e.key === 'ArrowRight') show(index + 1);
+  });
+})();
+</script>
+
+</body>
+</html>
