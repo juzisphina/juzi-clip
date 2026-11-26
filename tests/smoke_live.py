@@ -42,7 +42,7 @@ for _ in range(60):
 else:
     sys.exit('app did not start')
 
-assert b'ClipSaver' in urllib.request.build_opener(urllib.request.ProxyHandler({})).open(BASE + '/').read()
+assert '橘子存片'.encode() in urllib.request.build_opener(urllib.request.ProxyHandler({})).open(BASE + '/').read()
 failures = 0
 for link, want in CASES:
     r = post('/api/inspect', {'url': link})
