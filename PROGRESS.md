@@ -15,3 +15,4 @@ Push a new `v*` tag. Push as juzisphina: `GH_TOKEN=$(gh auth token --user juzisp
 
 ## Released
 - v1.0.1 (2026-11-26): first public release. v1.0.0 build failed (smoke test still looked for "ClipSaver"; Mac job never got a runner and was cancelled after 15 min) - fixed and re-tagged.
+- v1.0.2 (2026-11-27): 🌼 next to the name replaced by an original little orange-tabby kitten (docs/assets/kitty.svg, inlined in the app) at the user's request.

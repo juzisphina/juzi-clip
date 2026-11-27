@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="小貓">
+  <!-- a little orange tabby kitten head (original drawing) -->
+  <path d="M10 26 L12 6 L27 17 Z" fill="#ff9a4d"/>
+  <path d="M54 26 L52 6 L37 17 Z" fill="#ff9a4d"/>
+  <path d="M14 21 L15 11 L23 17 Z" fill="#ffc9b0"/>
+  <path d="M50 21 L49 11 L41 17 Z" fill="#ffc9b0"/>
+  <ellipse cx="32" cy="36" rx="25" ry="22" fill="#ffab63"/>
+  <path d="M32 15 v7 M25 16 l1.5 6 M39 16 l-1.5 6" stroke="#ec7b33" stroke-width="2.6" stroke-linecap="round"/>
+  <ellipse cx="32" cy="44" rx="12" ry="9" fill="#fff4e8"/>
+  <ellipse cx="22.5" cy="35" rx="3.2" ry="3.8" fill="#4a3428"/>
+  <ellipse cx="41.5" cy="35" rx="3.2" ry="3.8" fill="#4a3428"/>
+  <circle cx="23.6" cy="33.6" r="1.1" fill="#fff"/>
+  <circle cx="42.6" cy="33.6" r="1.1" fill="#fff"/>
+  <path d="M30 41 h4 l-2 2.4 z" fill="#f2789f"/>
+  <path d="M32 43.4 q-2.2 3 -4.6 1.2 M32 43.4 q2.2 3 4.6 1.2" stroke="#4a3428" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="16.5" cy="42" rx="3.6" ry="2.2" fill="#ff8fa8" opacity=".55"/>
+  <ellipse cx="47.5" cy="42" rx="3.6" ry="2.2" fill="#ff8fa8" opacity=".55"/>
+  <path d="M7 39 l8 1.5 M7 45 l8 -1 M57 39 l-8 1.5 M57 45 l-8 -1" stroke="#c97a4a" stroke-width="1.3" stroke-linecap="round"/>
+</svg>
