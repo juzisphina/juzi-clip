@@ -16,3 +16,4 @@ Push a new `v*` tag. Push as juzisphina: `GH_TOKEN=$(gh auth token --user juzisp
 ## Released
 - v1.0.1 (2026-11-26): first public release. v1.0.0 build failed (smoke test still looked for "ClipSaver"; Mac job never got a runner and was cancelled after 15 min) - fixed and re-tagged.
 - v1.0.2 (2026-11-27): 🌼 next to the name replaced by an original little orange-tabby kitten (docs/assets/kitty.svg, inlined in the app) at the user's request.
+- v1.0.3 (2026-11-27): proxies, theme and language now survive closing the app. pywebview's default private mode wiped the window's localStorage on every exit; now webview.start(private_mode=False, storage_path=%APPDATA%/JuziClip). Same bug still exists in skot-chen ClipSaver (left untouched).
